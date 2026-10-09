@@ -1027,7 +1027,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
   var ITEMS = D.items, CARDS = D.cards, QUIZ = D.quiz, SUM = D.summary, TITLES = D.titles;
 
   var TX = {
-    ca: { leitner: 'Caixa de Leitner', leiD: 'Les cartes pugen de caixa quan les saps i tornen a la 1 quan falles. Com més amunt, més espaiada és la revisió.', box: 'Caixa', every: 'cada', day: 'dia', days: 'dies', due: 'per repassar', study: 'Estudia', stop: 'Atura', answer: 'Resposta', retry: 'repàs', yes: 'Ho sabia', no: 'No ho sabia', sessEnd: 'Sessió acabada', toBoxes: 'Torna a les caixes', allDone: 'No tens cartes per repassar ara. Molt bé!', next2: 'Propera revisió:', resetQ: 'Vols esborrar el progrés de les caixes?', btn: 'Estatut', title: "Estatut d'Autonomia", sub: 'Llei Orgànica 6/2006 · text consolidat BOE',
+    ca: { vStudy: 'Estudia per veu', vCard: function (n, m) { return 'Carta ' + n + ' de ' + m + '.'; }, vKnew: "L'has sabuda?", vPaused: 'En pausa', vListen: 'Escoltant…', vSpeak: 'Llegint…', vPause: 'Pausa', vResume: 'Reprèn', vMic: 'No puc accedir al micròfon. Usa els botons de la carta.', vHintF: 'Digues «resposta» (o respon tu) per veure-la · «repeteix» · «atura»', vHintB: 'Digues «ho sabia» o «no ho sabia» · «repeteix» · «atura»', leitner: 'Caixa de Leitner', leiD: 'Les cartes pugen de caixa quan les saps i tornen a la 1 quan falles. Com més amunt, més espaiada és la revisió.', box: 'Caixa', every: 'cada', day: 'dia', days: 'dies', due: 'per repassar', study: 'Estudia', stop: 'Atura', answer: 'Resposta', retry: 'repàs', yes: 'Ho sabia', no: 'No ho sabia', sessEnd: 'Sessió acabada', toBoxes: 'Torna a les caixes', allDone: 'No tens cartes per repassar ara. Molt bé!', next2: 'Propera revisió:', resetQ: 'Vols esborrar el progrés de les caixes?', btn: 'Estatut', title: "Estatut d'Autonomia", sub: 'Llei Orgànica 6/2006 · text consolidat BOE',
       tabs: ['Resum', 'Text', 'Leitner', 'Prova'], close: 'Tanca', back: '‹ Enrere',
       search: 'Cerca paraules o article (ex.: 164, art 67, mossos)', results: 'resultats', noRes: 'Cap resultat.',
       textNote: "El text íntegre és el publicat al BOE, en castellà. Els resums, cartes i preguntes sí que els tens en català.",
@@ -1040,7 +1040,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
       start: 'Comença', q: 'Pregunta', blank: 'Deixa en blanc', nextQ: 'Següent', prevQ: 'Anterior', finish: 'Finalitza', check: 'Respon', 
       ok: 'Correcte', ko: 'Incorrecte', ans: 'Resposta correcta', res: 'Resultat', hit: 'Encerts', miss: 'Errors', blk: 'En blanc', score: 'Nota',
       apte: 'APTE', noapte: 'NO APTE', review: 'Errors i blancs', seeArt: "Veure l'article", again2: 'Torna-ho a provar', hist: 'Historial', none: 'Encara no hi ha proves.', confirmEnd: 'Hi ha preguntes sense respondre. Finalitzar?', lang: 'Idioma' },
-    es: { leitner: 'Caja de Leitner', leiD: 'Las tarjetas suben de caja cuando las sabes y vuelven a la 1 cuando fallas. Cuanto más arriba, más espaciado es el repaso.', box: 'Caja', every: 'cada', day: 'día', days: 'días', due: 'por repasar', study: 'Estudiar', stop: 'Parar', answer: 'Respuesta', retry: 'repaso', yes: 'Lo sabía', no: 'No lo sabía', sessEnd: 'Sesión terminada', toBoxes: 'Volver a las cajas', allDone: 'No tienes tarjetas por repasar ahora. ¡Muy bien!', next2: 'Próximo repaso:', resetQ: '¿Quieres borrar el progreso de las cajas?', btn: 'Estatuto', title: 'Estatuto de Autonomía', sub: 'Ley Orgánica 6/2006 · texto consolidado BOE',
+    es: { vStudy: 'Estudiar por voz', vCard: function (n, m) { return 'Tarjeta ' + n + ' de ' + m + '.'; }, vKnew: '¿La sabías?', vPaused: 'En pausa', vListen: 'Escuchando…', vSpeak: 'Leyendo…', vPause: 'Pausa', vResume: 'Reanudar', vMic: 'No puedo acceder al micrófono. Usa los botones de la tarjeta.', vHintF: 'Di «respuesta» (o responde tú) para verla · «repite» · «para»', vHintB: 'Di «lo sabía» o «no lo sabía» · «repite» · «para»', leitner: 'Caja de Leitner', leiD: 'Las tarjetas suben de caja cuando las sabes y vuelven a la 1 cuando fallas. Cuanto más arriba, más espaciado es el repaso.', box: 'Caja', every: 'cada', day: 'día', days: 'días', due: 'por repasar', study: 'Estudiar', stop: 'Parar', answer: 'Respuesta', retry: 'repaso', yes: 'Lo sabía', no: 'No lo sabía', sessEnd: 'Sesión terminada', toBoxes: 'Volver a las cajas', allDone: 'No tienes tarjetas por repasar ahora. ¡Muy bien!', next2: 'Próximo repaso:', resetQ: '¿Quieres borrar el progreso de las cajas?', btn: 'Estatuto', title: 'Estatuto de Autonomía', sub: 'Ley Orgánica 6/2006 · texto consolidado BOE',
       tabs: ['Resumen', 'Texto', 'Leitner', 'Prueba'], close: 'Cerrar', back: '‹ Volver',
       search: 'Busca palabras o artículo (ej.: 164, art 67, mossos)', results: 'resultados', noRes: 'Sin resultados.',
       textNote: 'El texto íntegro es el publicado en el BOE, en castellano. Los resúmenes, tarjetas y preguntas también los tienes en catalán.',
@@ -1055,7 +1055,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
       apte: 'APTO', noapte: 'NO APTO', review: 'Errores y blancos', seeArt: 'Ver el artículo', again2: 'Volver a probar', hist: 'Historial', none: 'Aún no hay pruebas.', confirmEnd: 'Hay preguntas sin responder. ¿Finalizar?', lang: 'Idioma' }
   };
 
-  var S = { open: false, tab: 0, lang: 'ca', q: '', view: -1, cards: { phase: 'home', queue: [], pos: 0, flip: false, ok: 0, ko: 0 },
+  var S = { open: false, tab: 0, lang: 'ca', q: '', view: -1, cards: { phase: 'home', queue: [], pos: 0, flip: false, ok: 0, ko: 0, voice: false },
             qz: { phase: 'start', mode: 'exam', n: 40, items: [], i: 0, ans: [], checked: [], res: null }, openSum: 0 };
   var root, fab, ST;
 
@@ -1157,6 +1157,94 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
     return h;
   }
 
+  /* ---------- veu (Leitner) ---------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition, synth = window.speechSynthesis;
+  var V = { run: 0, listening: false, speaking: false, paused: false, silent: 0, heard: '', micErr: '', rec: null, wl: null };
+  var voices = [];
+  function loadVoices() { try { voices = synth.getVoices() || []; } catch (e) {} }
+  function pickVoice(lang) {
+    if (!voices.length) loadVoices();
+    if (lang === 'es') return voices.filter(function (v) { return /^es[-_]ES/i.test(v.lang); })[0] || voices.filter(function (v) { return /^es/i.test(v.lang); })[0] || null;
+    return voices.filter(function (v) { return /^ca/i.test(v.lang) || /catal/i.test(v.name); })[0] || voices.filter(function (v) { return /^es/i.test(v.lang); })[0] || null;
+  }
+  function vspeak(text) {
+    return new Promise(function (res) {
+      if (!synth || !text) { res(); return; }
+      var done = false, tm;
+      function fin() { if (done) return; done = true; clearTimeout(tm); try { synth.cancel(); } catch (e) {} V.speaking = false; res(); }
+      try {
+        synth.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = S.lang === 'es' ? 'es-ES' : 'ca-ES'; u.rate = 1; u.pitch = 1;
+        var v = pickVoice(S.lang); if (v) u.voice = v;
+        u.onend = fin; u.onerror = fin;
+        tm = setTimeout(fin, Math.max(2500, text.length * 95 + 2000));
+        V.speaking = true; synth.speak(u);
+      } catch (e) { fin(); }
+    });
+  }
+  function vlisten() {
+    return new Promise(function (res) {
+      if (!SR) { res({ err: 'unsupported' }); return; }
+      var r, got = null, err = null;
+      try { r = new SR(); } catch (e) { res({ err: 'start' }); return; }
+      V.rec = r; r.lang = S.lang === 'es' ? 'es-ES' : 'ca-ES'; r.interimResults = false; r.maxAlternatives = 5; r.continuous = false;
+      r.onresult = function (ev) { var rs = ev.results[ev.results.length - 1], out = []; for (var k = 0; k < rs.length; k++) out.push(rs[k].transcript); got = out; };
+      r.onerror = function (ev) { err = ev.error; };
+      r.onend = function () { if (V.rec === r) V.rec = null; V.listening = false; render(true); res({ alts: got, err: err }); };
+      try { V.listening = true; render(true); r.start(); } catch (e) { V.listening = false; res({ err: 'start' }); }
+    });
+  }
+  function vabort() { V.run++; try { synth && synth.cancel(); } catch (e) {} try { V.rec && V.rec.abort(); } catch (e) {} V.speaking = false; V.listening = false; V.rec = null; V.paused = false; }
+  function vstop() { vabort(); try { V.wl && V.wl.release(); } catch (e) {} V.wl = null; }
+  function vnorm(s) { return norm(s).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function vinterp(alts, phase) {
+    for (var i = 0; i < alts.length; i++) {
+      var n = vnorm(alts[i]); if (!n) continue; V.heard = alts[0];
+      if (n.split(' ').length <= 6) {
+        if (/\b(atura|aturar|parar|para|stop|acabar|acaba|sortir|termina|terminar|finalitza)\b/.test(n)) return 'stop';
+        if (/\b(repeteix|repeteixes|repetir|repite|repiteme|de nou|otra vez|una altra vegada|torna a llegir)\b/.test(n)) return 'rep';
+      }
+      if (phase === 'front') return 'reveal';
+      if (/\b(no|repassar|repasar|falla|fallat|fallo|mal|error|incorrecte|incorrecto|dolent)\b/.test(n)) return 'no';
+      if (/\b(si|ho sabia|ho se|lo sabia|lo se|correcte|correcto|be|bien|ok|vale|d acord|exacte|exacto|perfecte|perfecto|bona|bueno)\b/.test(n)) return 'yes';
+      return 'unk';
+    }
+    return null;
+  }
+  async function vloop() {
+    var tok = ++V.run, c = S.cards, key = '', read = true;
+    V.paused = false; V.silent = 0; V.micErr = ''; V.heard = '';
+    try { if (navigator.wakeLock && !V.wl) navigator.wakeLock.request('screen').then(function (l) { V.wl = l; }).catch(function () {}); } catch (e) {}
+    render(true);
+    while (tok === V.run && c.phase === 'run') {
+      var q = c.queue[c.pos], cd = CARDS[q.i], T = t(), phase = c.flip ? 'back' : 'front', k2 = c.pos + '|' + phase;
+      if (k2 !== key) { key = k2; read = true; V.silent = 0; }
+      render(true);
+      if (read) {
+        var ok;
+        if (phase === 'front') { ok = await vspeak(T.vCard(c.pos + 1, c.queue.length)); if (tok !== V.run) return; ok = await vspeak(pick(cd, 'f')); }
+        else { ok = await vspeak(T.answer + '.'); if (tok !== V.run) return; ok = await vspeak(pick(cd, 'b')); if (tok !== V.run) return; ok = await vspeak(T.vKnew); }
+        if (tok !== V.run) return;
+        read = false;
+      }
+      var r = await vlisten(); if (tok !== V.run) return;
+      if (r.err === 'not-allowed' || r.err === 'service-not-allowed' || r.err === 'unsupported' || r.err === 'start') { V.micErr = r.err; V.paused = true; render(true); return; }
+      if (!r.alts) { V.silent++; if (V.silent >= 3) { V.paused = true; render(true); return; } continue; }
+      V.silent = 0;
+      var cmd = vinterp(r.alts, phase);
+      if (cmd === 'stop') { vstop(); c.phase = 'home'; render(); return; }
+      if (cmd === 'rep') { read = true; continue; }
+      if (phase === 'front') { c.flip = true; continue; }
+      if (cmd === 'yes' || cmd === 'no') {
+        answerCard(cmd === 'yes');
+        if (c.phase === 'end') { render(); await vspeak(T.sessEnd + '. ' + T.yes + ': ' + c.ok + '. ' + T.no + ': ' + c.ko + '.'); vstop(); render(); return; }
+        continue;
+      }
+      await vspeak(T.vKnew); if (tok !== V.run) return;
+    }
+  }
+
   /* ---------- caixa de Leitner ---------- */
   var DAY = 86400000, INTV = [1, 2, 4, 8, 16], SESSION = 20;
   function lei(i) { return ST.lei[i] || { b: 1, d: 0 }; }
@@ -1188,6 +1276,13 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
       var q = c.queue[c.pos], cd = CARDS[q.i], L = lei(q.i);
       h += '<div class="row"><span class="st">' + (c.pos + 1) + '/' + c.queue.length + '</span><span class="st">' + T.box + ' ' + L.b + '</span><button class="x" data-act="cstop" style="margin-left:auto">' + T.stop + '</button></div>';
       h += '<div class="bar"><i style="width:' + Math.round(c.pos / c.queue.length * 100) + '%"></i></div>';
+      if (c.voice) {
+        var stt = V.paused ? '⏸ ' + T.vPaused : V.listening ? '🎙 ' + T.vListen : V.speaking ? '🔊 ' + T.vSpeak : '…';
+        h += '<div class="row"><span class="st vs' + (V.listening ? ' on' : '') + '">' + stt + '</span>' +
+          (V.paused ? '<button class="gold" data-act="vresume">' + T.vResume + '</button>' : '<button class="x" data-act="vpause">' + T.vPause + '</button>') + '</div>';
+        if (V.micErr) h += '<div class="warn">' + esc(T.vMic) + '</div>';
+        h += '<p class="nt">' + esc(c.flip ? T.vHintB : T.vHintF) + (V.heard ? ' · «' + esc(V.heard) + '»' : '') + '</p>';
+      }
       h += '<div class="fc" data-act="flip"><div class="lb">' + esc(c.flip ? T.answer : cd.r) + (q.retry ? ' · ' + esc(T.retry) : '') + '</div><div class="ft">' + esc(c.flip ? pick(cd, 'b') : pick(cd, 'f')) + '</div>' +
         (c.flip ? '' : '<div class="nt">' + T.flip + '</div>') + '</div>';
       if (c.flip) {
@@ -1209,7 +1304,11 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
         '<div class="bi">' + T.every + ' ' + INTV[b] + (INTV[b] === 1 ? ' ' + T.day : ' ' + T.days) + '</div>' + (dcount[b] ? '<div class="bd">' + dcount[b] + ' ' + T.due + '</div>' : '') + '</div>';
     }
     h += '</div>';
-    if (due.length) h += '<button class="go" data-act="cstart">' + T.study + ' (' + Math.min(due.length, SESSION) + (due.length > SESSION ? '/' + due.length : '') + ')</button>';
+    if (due.length) {
+      var cnt = ' (' + Math.min(due.length, SESSION) + (due.length > SESSION ? '/' + due.length : '') + ')';
+      h += '<button class="go" data-act="cstart">' + T.study + cnt + '</button>' +
+           '<button class="go alt" data-act="cvoice">🎙 ' + T.vStudy + cnt + '</button>';
+    }
     else {
       var nx = Infinity; for (var j = 0; j < CARDS.length; j++) nx = Math.min(nx, lei(j).d);
       h += '<div class="card"><p>' + T.allDone + '</p><p class="nt">' + T.next2 + ' ' + new Date(nx).toLocaleDateString() + '</p></div>';
@@ -1324,6 +1423,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
     '#tle .fc{background:#171e2b;border:1px solid #2b3446;border-radius:16px;padding:22px 18px;min-height:210px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;margin:6px 0}' +
     '#tle .fc .ft{font-size:18px;line-height:1.45;color:#efe7d3;margin:8px 0}#tle .lb{font-size:12px;color:#c9a23f;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}' +
     '#tle .boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}#tle .bx{background:#171e2b;border:1px solid #2b3446;border-radius:10px;padding:8px 2px;text-align:center}#tle .bh{font-size:10px;color:#c9a23f;text-transform:uppercase}#tle .bn2{font:700 22px Georgia,serif;color:#efe7d3;margin:2px 0}#tle .bi{font-size:9.5px;color:#8d8570}#tle .bd{font-size:10px;color:#1a1408;background:#c9a23f;border-radius:6px;margin:5px 4px 0;padding:1px 0;font-weight:700}' +
+    '#tle .go.alt{background:#171e2b;color:#e0bf6a;border:1.5px solid #c9a23f}#tle .vs.on{background:#c9a23f;color:#1a1408}' +
     '#tle .card{background:#171e2b;border:1px solid #2b3446;border-radius:14px;padding:14px;margin:12px 0}' +
     '#tle .seg{display:flex;gap:8px;flex-wrap:wrap}#tle .seg button{flex:1;min-width:64px;background:#0f141d;border:1px solid #3a3526;color:#efe7d3;border-radius:10px;padding:11px 8px;font-size:14px;cursor:pointer}#tle .seg button.on{background:#c9a23f;color:#1a1408;border-color:#c9a23f;font-weight:700}' +
     '#tle .go{width:100%;background:#c9a23f;color:#1a1408;border:0;border-radius:12px;padding:16px;font:700 16px system-ui;cursor:pointer;margin-top:6px}' +
@@ -1350,18 +1450,19 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
   function go(act, el) {
     var v = el.getAttribute('data-v'), q = S.qz, c = S.cards;
     switch (act) {
-      case 'close': S.open = false; root.style.display = 'none'; document.body.style.overflow = ''; return;
-      case 'lang': S.lang = S.lang === 'ca' ? 'es' : 'ca'; fab.lastChild.textContent = t().btn; return render(true);
-      case 'tab': S.tab = +v; if (S.tab === 1) S.view = -1; return render();
+      case 'close': vstop(); S.open = false; root.style.display = 'none'; document.body.style.overflow = ''; return;
+      case 'lang': vstop(); if (S.cards.phase === 'run') S.cards.phase = 'home'; S.lang = S.lang === 'ca' ? 'es' : 'ca'; fab.lastChild.textContent = t().btn; return render(true);
+      case 'tab': if (S.tab === 2 && +v !== 2) { vstop(); if (S.cards.phase === 'run') S.cards.phase = 'home'; } S.tab = +v; if (S.tab === 1) S.view = -1; return render();
       case 'art': S.view = +el.getAttribute('data-i'); S.tab = 1; return render();
       case 'pre': S.view = -2; return render();
       case 'list': S.view = -1; return render();
-      case 'flip': c.flip = !c.flip; return render(true);
-      case 'cstart': startSession(); return render();
-      case 'cyes': answerCard(true); return render();
-      case 'cno': answerCard(false); return render();
-      case 'cstop': c.phase = 'home'; return render();
-      case 'chome': c.phase = 'home'; return render();
+      case 'flip': c.flip = !c.flip; if (c.voice && c.phase === 'run') { render(true); return vloop(); } return render(true);
+      case 'cstart': vstop(); startSession(); c.voice = false; return render();
+      case 'cvoice': vstop(); startSession(); c.voice = true; render(); return vloop();
+      case 'vpause': vabort(); V.paused = true; return render(true);
+      case 'vresume': V.micErr = ''; return vloop();
+      case 'cyes': case 'cno': answerCard(act === 'cyes'); if (c.voice && c.phase === 'run') { render(); return vloop(); } if (c.phase === 'end') vstop(); return render();
+      case 'cstop': case 'chome': vstop(); c.phase = 'home'; return render();
       case 'creset': if (window.confirm(t().resetQ)) { ST.lei = {}; saveST(); } return render();
       case 'qmode': q.mode = v; return render(true);
       case 'qn': q.n = +v; return render(true);
@@ -1403,7 +1504,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
     root.addEventListener('click', onClick); root.addEventListener('input', onInput); root.addEventListener('toggle', onToggle, true);
     document.body.appendChild(root);
     window.addEventListener('storage', function () { if (!S.open) fab.lastChild.textContent = TX[appLang()].btn; });
-    document.addEventListener('visibilitychange', function () { if (!document.hidden && !S.open) fab.lastChild.textContent = TX[appLang()].btn; });
+    document.addEventListener('visibilitychange', function () { if (document.hidden && S.open && S.cards.voice && S.cards.phase === 'run' && !V.paused) { vabort(); V.paused = true; render(true); } if (!document.hidden && !S.open) fab.lastChild.textContent = TX[appLang()].btn; });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
