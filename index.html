@@ -1027,8 +1027,8 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
   var ITEMS = D.items, CARDS = D.cards, QUIZ = D.quiz, SUM = D.summary, TITLES = D.titles;
 
   var TX = {
-    ca: { btn: 'Estatut', title: "Estatut d'Autonomia", sub: 'Llei Orgànica 6/2006 · text consolidat BOE',
-      tabs: ['Resum', 'Text', 'Cartes', 'Prova'], close: 'Tanca', back: '‹ Enrere',
+    ca: { leitner: 'Caixa de Leitner', leiD: 'Les cartes pugen de caixa quan les saps i tornen a la 1 quan falles. Com més amunt, més espaiada és la revisió.', box: 'Caixa', every: 'cada', day: 'dia', days: 'dies', due: 'per repassar', study: 'Estudia', stop: 'Atura', answer: 'Resposta', retry: 'repàs', yes: 'Ho sabia', no: 'No ho sabia', sessEnd: 'Sessió acabada', toBoxes: 'Torna a les caixes', allDone: 'No tens cartes per repassar ara. Molt bé!', next2: 'Propera revisió:', resetQ: 'Vols esborrar el progrés de les caixes?', btn: 'Estatut', title: "Estatut d'Autonomia", sub: 'Llei Orgànica 6/2006 · text consolidat BOE',
+      tabs: ['Resum', 'Text', 'Leitner', 'Prova'], close: 'Tanca', back: '‹ Enrere',
       search: 'Cerca paraules o article (ex.: 164, art 67, mossos)', results: 'resultats', noRes: 'Cap resultat.',
       textNote: "El text íntegre és el publicat al BOE, en castellà. Els resums, cartes i preguntes sí que els tens en català.",
       prev: '‹ Anterior', next: 'Següent ›', art: 'Art.', pre: 'Preàmbul', ann: '(Anul·lat pel Tribunal Constitucional)',
@@ -1040,8 +1040,8 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
       start: 'Comença', q: 'Pregunta', blank: 'Deixa en blanc', nextQ: 'Següent', prevQ: 'Anterior', finish: 'Finalitza', check: 'Respon', 
       ok: 'Correcte', ko: 'Incorrecte', ans: 'Resposta correcta', res: 'Resultat', hit: 'Encerts', miss: 'Errors', blk: 'En blanc', score: 'Nota',
       apte: 'APTE', noapte: 'NO APTE', review: 'Errors i blancs', seeArt: "Veure l'article", again2: 'Torna-ho a provar', hist: 'Historial', none: 'Encara no hi ha proves.', confirmEnd: 'Hi ha preguntes sense respondre. Finalitzar?', lang: 'Idioma' },
-    es: { btn: 'Estatuto', title: 'Estatuto de Autonomía', sub: 'Ley Orgánica 6/2006 · texto consolidado BOE',
-      tabs: ['Resumen', 'Texto', 'Tarjetas', 'Prueba'], close: 'Cerrar', back: '‹ Volver',
+    es: { leitner: 'Caja de Leitner', leiD: 'Las tarjetas suben de caja cuando las sabes y vuelven a la 1 cuando fallas. Cuanto más arriba, más espaciado es el repaso.', box: 'Caja', every: 'cada', day: 'día', days: 'días', due: 'por repasar', study: 'Estudiar', stop: 'Parar', answer: 'Respuesta', retry: 'repaso', yes: 'Lo sabía', no: 'No lo sabía', sessEnd: 'Sesión terminada', toBoxes: 'Volver a las cajas', allDone: 'No tienes tarjetas por repasar ahora. ¡Muy bien!', next2: 'Próximo repaso:', resetQ: '¿Quieres borrar el progreso de las cajas?', btn: 'Estatuto', title: 'Estatuto de Autonomía', sub: 'Ley Orgánica 6/2006 · texto consolidado BOE',
+      tabs: ['Resumen', 'Texto', 'Leitner', 'Prueba'], close: 'Cerrar', back: '‹ Volver',
       search: 'Busca palabras o artículo (ej.: 164, art 67, mossos)', results: 'resultados', noRes: 'Sin resultados.',
       textNote: 'El texto íntegro es el publicado en el BOE, en castellano. Los resúmenes, tarjetas y preguntas también los tienes en catalán.',
       prev: '‹ Anterior', next: 'Siguiente ›', art: 'Art.', pre: 'Preámbulo', ann: '(Anulado por el Tribunal Constitucional)',
@@ -1055,11 +1055,11 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
       apte: 'APTO', noapte: 'NO APTO', review: 'Errores y blancos', seeArt: 'Ver el artículo', again2: 'Volver a probar', hist: 'Historial', none: 'Aún no hay pruebas.', confirmEnd: 'Hay preguntas sin responder. ¿Finalizar?', lang: 'Idioma' }
   };
 
-  var S = { open: false, tab: 0, lang: 'ca', q: '', view: -1, cards: { order: [], i: 0, flip: false, only: false },
+  var S = { open: false, tab: 0, lang: 'ca', q: '', view: -1, cards: { phase: 'home', queue: [], pos: 0, flip: false, ok: 0, ko: 0 },
             qz: { phase: 'start', mode: 'exam', n: 40, items: [], i: 0, ans: [], checked: [], res: null }, openSum: 0 };
   var root, fab, ST;
 
-  function loadST() { try { ST = JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch (e) { ST = {}; } ST.cards = ST.cards || {}; ST.hist = ST.hist || []; }
+  function loadST() { try { ST = JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch (e) { ST = {}; } ST.lei = ST.lei || {}; ST.hist = ST.hist || []; }
   function saveST() { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} }
   function appLang() { try { var st = JSON.parse(localStorage.getItem(KEY) || '{}'); return st.settings && st.settings.showES ? 'es' : 'ca'; } catch (e) { return 'ca'; } }
   function t() { return TX[S.lang]; }
@@ -1157,28 +1157,64 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
     return h;
   }
 
-  /* ---------- cartes ---------- */
-  function buildOrder(keep) {
-    var o = []; for (var i = 0; i < CARDS.length; i++) if (!S.cards.only || !ST.cards[i]) o.push(i);
-    S.cards.order = keep === 'shuffle' ? shuffle(o) : o; S.cards.i = 0; S.cards.flip = false;
+  /* ---------- caixa de Leitner ---------- */
+  var DAY = 86400000, INTV = [1, 2, 4, 8, 16], SESSION = 20;
+  function lei(i) { return ST.lei[i] || { b: 1, d: 0 }; }
+  function dueList() {
+    var now = Date.now(), o = [];
+    for (var i = 0; i < CARDS.length; i++) if (lei(i).d <= now) o.push(i);
+    return o;
+  }
+  function startSession() {
+    var c = S.cards, due = shuffle(dueList());
+    due.sort(function (x, y) { return lei(x).b - lei(y).b; });
+    c.queue = due.slice(0, SESSION).map(function (i) { return { i: i, retry: false }; });
+    c.pos = 0; c.flip = false; c.ok = 0; c.ko = 0; c.phase = 'run';
+  }
+  function answerCard(good) {
+    var c = S.cards, q = c.queue[c.pos], L = lei(q.i);
+    if (!q.retry) {
+      if (good) { L = { b: Math.min(5, L.b + 1), d: Date.now() + INTV[Math.min(5, L.b + 1) - 1] * DAY }; c.ok++; }
+      else { L = { b: 1, d: Date.now() + DAY }; c.ko++; }
+      ST.lei[q.i] = L; saveST();
+    }
+    if (!good) c.queue.push({ i: q.i, retry: true });
+    c.pos++; c.flip = false;
+    if (c.pos >= c.queue.length) c.phase = 'end';
   }
   function viewCards() {
-    var c = S.cards; if (!c.order.length && !c.only) buildOrder();
-    var known = 0; for (var k in ST.cards) if (ST.cards[k]) known++;
-    var h = '<div class="row"><span class="st">' + known + '/' + CARDS.length + ' ' + t().known + '</span>' +
-      '<button class="x" data-act="conly">' + (c.only ? t().all : t().only) + '</button>' +
-      '<button class="x" data-act="cshuf">' + t().shuffle + '</button><button class="x" data-act="creset">' + t().reset + '</button></div>';
-    h += '<div class="bar"><i style="width:' + Math.round(known / CARDS.length * 100) + '%"></i></div>';
-    if (!c.order.length) return h + '<div class="card"><p>' + t().noPend + '</p></div>';
-    var cd = CARDS[c.order[c.i]];
-    h += '<p class="nt">' + t().card + ' ' + (c.i + 1) + '/' + c.order.length + ' · ' + esc(cd.r) + '</p>';
-    h += '<div class="fc" data-act="flip"><div class="lb">' + esc(c.flip ? (S.lang === 'es' ? 'Respuesta' : 'Resposta') : cd.r) + '</div><div class="ft">' + esc(c.flip ? pick(cd, 'b') : pick(cd, 'f')) + '</div>' +
-      (c.flip ? '' : '<div class="nt">' + t().flip + '</div>') + '</div>';
-    if (c.flip) {
-      h += '<div class="nav"><button class="x" data-act="cagain">' + t().again + '</button><button class="gold" data-act="cknow">' + t().know + '</button></div>';
-      var ix = itemByArt((cd.r.match(/(\d+)/) || [])[1]);
-      if (ix >= 0) h += '<button class="x" style="margin-top:10px" data-act="art" data-i="' + ix + '">' + t().seeArt + '</button>';
-    } else h += '<div class="nav"><button class="x" data-act="cprev"' + (c.i === 0 ? ' disabled' : '') + '>' + t().prev + '</button><button class="x" data-act="cnext">' + t().next + '</button></div>';
+    var c = S.cards, T = t(), h = '';
+    if (c.phase === 'run') {
+      var q = c.queue[c.pos], cd = CARDS[q.i], L = lei(q.i);
+      h += '<div class="row"><span class="st">' + (c.pos + 1) + '/' + c.queue.length + '</span><span class="st">' + T.box + ' ' + L.b + '</span><button class="x" data-act="cstop" style="margin-left:auto">' + T.stop + '</button></div>';
+      h += '<div class="bar"><i style="width:' + Math.round(c.pos / c.queue.length * 100) + '%"></i></div>';
+      h += '<div class="fc" data-act="flip"><div class="lb">' + esc(c.flip ? T.answer : cd.r) + (q.retry ? ' · ' + esc(T.retry) : '') + '</div><div class="ft">' + esc(c.flip ? pick(cd, 'b') : pick(cd, 'f')) + '</div>' +
+        (c.flip ? '' : '<div class="nt">' + T.flip + '</div>') + '</div>';
+      if (c.flip) {
+        h += '<div class="nav"><button class="x" data-act="cno">' + T.no + '</button><button class="gold" data-act="cyes">' + T.yes + '</button></div>';
+        var ix = itemByArt((cd.r.match(/(\d+)/) || [])[1]);
+        if (ix >= 0) h += '<button class="x" data-act="art" data-i="' + ix + '">' + T.seeArt + '</button>';
+      }
+      return h;
+    }
+    if (c.phase === 'end') {
+      return '<h2>' + T.sessEnd + '</h2><div class="card big"><div class="hr"><span>' + T.yes + '</span><b>' + c.ok + '</b></div><div class="hr"><span>' + T.no + '</span><b>' + c.ko + '</b></div></div>' +
+        '<button class="go" data-act="chome">' + T.toBoxes + '</button>';
+    }
+    var due = dueList(), counts = [0, 0, 0, 0, 0], dcount = [0, 0, 0, 0, 0], now = Date.now();
+    for (var i = 0; i < CARDS.length; i++) { var l = lei(i); counts[l.b - 1]++; if (l.d <= now) dcount[l.b - 1]++; }
+    h += '<h2>' + T.leitner + '</h2><p>' + T.leiD + '</p><div class="boxes">';
+    for (var b = 0; b < 5; b++) {
+      h += '<div class="bx"><div class="bh">' + T.box + ' ' + (b + 1) + '</div><div class="bn2">' + counts[b] + '</div>' +
+        '<div class="bi">' + T.every + ' ' + INTV[b] + (INTV[b] === 1 ? ' ' + T.day : ' ' + T.days) + '</div>' + (dcount[b] ? '<div class="bd">' + dcount[b] + ' ' + T.due + '</div>' : '') + '</div>';
+    }
+    h += '</div>';
+    if (due.length) h += '<button class="go" data-act="cstart">' + T.study + ' (' + Math.min(due.length, SESSION) + (due.length > SESSION ? '/' + due.length : '') + ')</button>';
+    else {
+      var nx = Infinity; for (var j = 0; j < CARDS.length; j++) nx = Math.min(nx, lei(j).d);
+      h += '<div class="card"><p>' + T.allDone + '</p><p class="nt">' + T.next2 + ' ' + new Date(nx).toLocaleDateString() + '</p></div>';
+    }
+    h += '<button class="x" style="margin-top:14px" data-act="creset">' + T.reset + '</button>';
     return h;
   }
 
@@ -1287,6 +1323,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
     '#tle .bar{height:5px;background:#232b3a;border-radius:99px;overflow:hidden;margin:10px 0 12px}#tle .bar i{display:block;height:100%;background:#c9a23f}' +
     '#tle .fc{background:#171e2b;border:1px solid #2b3446;border-radius:16px;padding:22px 18px;min-height:210px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;margin:6px 0}' +
     '#tle .fc .ft{font-size:18px;line-height:1.45;color:#efe7d3;margin:8px 0}#tle .lb{font-size:12px;color:#c9a23f;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}' +
+    '#tle .boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}#tle .bx{background:#171e2b;border:1px solid #2b3446;border-radius:10px;padding:8px 2px;text-align:center}#tle .bh{font-size:10px;color:#c9a23f;text-transform:uppercase}#tle .bn2{font:700 22px Georgia,serif;color:#efe7d3;margin:2px 0}#tle .bi{font-size:9.5px;color:#8d8570}#tle .bd{font-size:10px;color:#1a1408;background:#c9a23f;border-radius:6px;margin:5px 4px 0;padding:1px 0;font-weight:700}' +
     '#tle .card{background:#171e2b;border:1px solid #2b3446;border-radius:14px;padding:14px;margin:12px 0}' +
     '#tle .seg{display:flex;gap:8px;flex-wrap:wrap}#tle .seg button{flex:1;min-width:64px;background:#0f141d;border:1px solid #3a3526;color:#efe7d3;border-radius:10px;padding:11px 8px;font-size:14px;cursor:pointer}#tle .seg button.on{background:#c9a23f;color:#1a1408;border-color:#c9a23f;font-weight:700}' +
     '#tle .go{width:100%;background:#c9a23f;color:#1a1408;border:0;border-radius:12px;padding:16px;font:700 16px system-ui;cursor:pointer;margin-top:6px}' +
@@ -1320,13 +1357,12 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
       case 'pre': S.view = -2; return render();
       case 'list': S.view = -1; return render();
       case 'flip': c.flip = !c.flip; return render(true);
-      case 'cknow': ST.cards[c.order[c.i]] = 1; saveST(); c.flip = false; if (c.only) { c.order.splice(c.i, 1); if (c.i >= c.order.length) c.i = 0; } else c.i = Math.min(c.i + 1, c.order.length - 1); return render(true);
-      case 'cagain': delete ST.cards[c.order[c.i]]; saveST(); c.flip = false; c.i = (c.i + 1) % c.order.length; return render(true);
-      case 'cnext': c.i = (c.i + 1) % c.order.length; c.flip = false; return render(true);
-      case 'cprev': c.i = Math.max(0, c.i - 1); c.flip = false; return render(true);
-      case 'conly': c.only = !c.only; buildOrder(); return render(true);
-      case 'cshuf': buildOrder('shuffle'); return render(true);
-      case 'creset': ST.cards = {}; saveST(); buildOrder(); return render(true);
+      case 'cstart': startSession(); return render();
+      case 'cyes': answerCard(true); return render();
+      case 'cno': answerCard(false); return render();
+      case 'cstop': c.phase = 'home'; return render();
+      case 'chome': c.phase = 'home'; return render();
+      case 'creset': if (window.confirm(t().resetQ)) { ST.lei = {}; saveST(); } return render();
       case 'qmode': q.mode = v; return render(true);
       case 'qn': q.n = +v; return render(true);
       case 'qstart': return startQuiz();
@@ -1356,7 +1392,7 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
 
   function openUI() {
     loadST(); S.open = true; S.lang = appLang(); S.view = -1; root.style.display = 'block'; document.body.style.overflow = 'hidden';
-    S.cards.only = false; buildOrder(); fab.lastChild.textContent = t().btn; render();
+    S.cards.phase = 'home'; fab.lastChild.textContent = t().btn; render();
   }
   function init() {
     loadST();
