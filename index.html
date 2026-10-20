@@ -2468,5 +2468,450 @@ window.TLV_BANK=[{"id":"q01","p":"origens","q":"Quina colònia grega es va funda
 })();
 
 </script>
+<script>
+/* ===== Talaia · Paraules clau + imatge per memoritzar ===== */
+(function () {
+  'use strict';
+  if (window.__TLK) return;
+  window.__TLK = 1;
+
+  var root = document.documentElement;
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function lang() { return root.lang === 'es' ? 'es' : 'ca'; }
+  function norm(s) { return String(s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+
+  var TX = {
+    ca: { kw: 'Paraules clau', img: 'Imatge per memoritzar', other: 'Una altra imatge', close: 'Tanca', key: 'Clau', warn: 'Matís', hint: 'Respon la pregunta i la imatge hi afegirà la resposta.', mem: 'Escena per recordar-ho', photo: 'Foto', say: 'Imagina', center: 'al centre, en lletres enormes', ans: 'Resposta', tru: 'VERITAT', fal: 'FALS', nokw: 'Cap paraula clau detectada.' },
+    es: { kw: 'Palabras clave', img: 'Imagen para memorizar', other: 'Otra imagen', close: 'Cierra', key: 'Clave', warn: 'Matiz', hint: 'Responde la pregunta y la imagen añadirá la respuesta.', mem: 'Escena para recordarlo', photo: 'Foto', say: 'Imagina', center: 'en el centro, en letras enormes', ans: 'Respuesta', tru: 'VERDAD', fal: 'FALSO', nokw: 'Ninguna palabra clave detectada.' }
+  };
+
+  /* ---------------- 1. Registre de preguntes (per trobar la resposta) ---------------- */
+  var REC = null;
+  function buildRec() {
+    if (REC) return REC;
+    REC = Object.create(null);
+    function put(k, r) { if (k && typeof k === 'string') REC[norm(k).replace(/\.\.\./g, '___')] = r; }
+    var d = window.__TL_DATA || {};
+    (d.Tc || []).forEach(function (x) { var r = { q: x.q, qe: x.qe, o: x.o, oe: x.oe, c: x.c, e: x.e, ee: x.ee }; put(x.q, r); put(x.qe, r); });
+    (d.Mm || []).forEach(function (x) { var r = { q: x.t, qe: x.te, o: x.o, oe: x.oe, c: x.c, e: x.e, ee: x.ee }; put(x.t, r); put(x.te, r); });
+    (d.qm || []).forEach(function (x) { var r = { q: x.s, qe: x.se, v: x.v, e: x.e, ee: x.ee }; put(x.s, r); put(x.se, r); });
+    try {
+      var t = document.getElementById('tle-data');
+      if (t) (JSON.parse(t.textContent).quiz || []).forEach(function (x) { var r = { q: x.q, qe: x.qe, o: x.o, oe: x.oe, c: x.c, e: x.e, ee: x.ee }; put(x.q, r); put(x.qe, r); });
+    } catch (e) {}
+    (window.TLV_BANK || []).forEach(function (x) { var r = { q: x.q, qe: x.qe, o: x.o, oe: x.oe, c: x.c, e: x.e, ee: x.ee }; put(x.q, r); put(x.qe, r); });
+    return REC;
+  }
+
+  /* ---------------- 2. Extracció de paraules clau ---------------- */
+  var MONTHS = 'gener|febrer|mar[çc]|abril|maig|juny|juliol|agost|setembre|octubre|novembre|desembre|enero|febrero|marzo|mayo|junio|julio|agosto|septiembre|setiembre|noviembre|diciembre';
+  var NUMW = 'un|una|dos|dues|tres|quatre|cinc|sis|set|vuit|nou|deu|onze|dotze|tretze|catorze|quinze|setze|disset|divuit|dinou|vint|trenta|quaranta|cinquanta|seixanta|cent|mil|uno|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|veinte|treinta|cuarenta|cincuenta|sesenta|cien|primer|primera|segon|segona|tercer|tercera|quart|quarta|cinquè|segundo|tercero|cuarto|quinto';
+  var UNITS = 'mesos|mes|dies|dia|anys|any|hores|hora|membres|diputats|senadors|escons|articles|article|apartats|ap[àa]rtats|mat[èe]ries|competències|t[íi]tols|títol|llibres|comunitats|províncies|meses|d[íi]as|años|año|horas|miembros|diputados|escaños|art[íi]culos|materias|competencias|t[íi]tulos|comunidades|provincias|terços|tercios|cinquenes|quintos|%';
+  var ICONS = [
+    [/mossos|esquadra/i, '🛡️'], [/guardia civil|guàrdia civil/i, '🎖️'], [/ertzaintza|basc|vasc/i, '🏔️'], [/cos nacional|polic[ií]a/i, '👮'],
+    [/llei|ley|lleis|leyes/i, '⚖️'], [/constituci[óo]/i, '📜'], [/estatut|estatuto/i, '📖'], [/parlament|parlamento|cortes|congr[ée]s|senat|senado/i, '🏛️'],
+    [/refer[èe]ndum/i, '🗳️'], [/decret|decreto/i, '📜'], [/veto/i, '🚫'], [/majoria|mayor[íi]a|vot/i, '🗳️'], [/rei\b|rey\b|reial|real\b|monarq|corona|comtes?\b|comtat/i, '👑'],
+    [/guerra|batalla|setge|asedio|assalt|conquest|conquista|militar|ex[èe]rcit|ejército|somat[eé]n/i, '⚔️'], [/barcelona|bcn/i, '🏙️'], [/girona|lleida|tarragona|manresa|vic\b|tortosa/i, '📍'],
+    [/montserrat|pirineu|pirineo|muntany|montaña/i, '⛰️'], [/mar\b|riu\b|ebre|llobregat|ter\b|costa/i, '🌊'], [/immigra|migra|estranger|extranjer/i, '🧳'],
+    [/social|assist[èe]ncia|asistencia|integraci/i, '🤝'], [/igualtat|igualdad|dret|derecho|llibertat|libertad/i, '⚖️'], [/educaci|escola|escuela|ensenyament|universitat/i, '🎓'],
+    [/salut|sanitat|sanidad|hospital/i, '🏥'], [/tr[àa]nsit|tráfico|circulaci/i, '🚦'], [/seguretat|seguridad|protecci|emerg[èe]ncia/i, '🔒'], [/bandera|senyera|himne|himno|s[ií]mbol/i, '🚩'],
+    [/rep[úu]blic/i, '🏛️'], [/franqui|franco|dictadura|dictador/i, '🪖'], [/ex[ií]li|exilio/i, '🚢'], [/transici/i, '🕊️'], [/democr[àa]ci/i, '🗳️'],
+    [/autonomi|autogovern|autogobierno/i, '🏠'], [/compet[èe]ncia|competencia/i, '🧩'], [/rom[àa]|roma\b|romano/i, '🏺'], [/grec|griego|emp[úu]ries|ampurias/i, '🏺'],
+    [/impost|tribut|pressupost|presupuesto|hisenda|hacienda|moneda|econ[òo]m/i, '💰'], [/just[ií]cia|justicia|tribunal|jutge|juez|judicial|fiscal/i, '👨‍⚖️'],
+    [/pres[óo]|c[àa]stig|pena\b|delict|delito|penal/i, '⛓️'], [/govern|gobierno|president|ministre|ministro|generalitat/i, '🏛️'], [/ajuntament|municip|alcalde|ayuntamiento/i, '🏘️'],
+    [/llengua|lengua|catal[àa]|idioma|castell|castellano|aran[èe]s/i, '🗣️'], [/nova planta|felip|felipe|successi[óo]|sucesi[óo]n|1714/i, '🔥'], [/segle|siglo|any\b|año|hist[òo]ria/i, '⏳'],
+    [/article|art[íi]culo|apartat|t[íi]tol|preàmbul/i, '🔢'], [/ordre|orden|ordenament|ordenamiento|norma/i, '📚'], [/reforma/i, '🔧'], [/sanci[óo]|promulga|publicaci|bo[ee]|dogc|boe/i, '🖋️'],
+    [/menors|menores|infant|niño|nen\b|joventut/i, '🧒'], [/dona\b|mujer|g[èe]nere|género|viol[èe]ncia/i, '♀️'], [/terrorism|armes|armas|explosiu/i, '💣'], [/investig|detenci|detenci[óo]n|det[ée]n/i, '🔍']
+  ];
+  var DEFAULT_ICON = { year: '⏳', art: '🔢', num: '🔢', date: '📅', law: '📜', name: '🧑', term: '💡', quant: '🔢' };
+
+  function pushM(arr, s, e, type, text, w) { arr.push({ s: s, e: e, type: type, text: text, w: w || 1 }); }
+  function matchAll(re, txt, cb) { re.lastIndex = 0; var m; while ((m = re.exec(txt))) { cb(m); if (m.index === re.lastIndex) re.lastIndex++; } }
+
+  var CONN = { de: 1, del: 1, dels: 1, "d'": 1, "d’": 1, la: 1, les: 1, el: 1, els: 1, i: 1, y: 1, of: 1, las: 1, los: 1, des: 1 };
+  var STOPCAP = /^(quin|quina|quins|quines|quant|quants|quantes|qu[èe]|qui|quan|on|com|per|segons|seg[úu]n|cu[áa]l|cu[áa]les|cu[áa]nto|cu[áa]ntos|cu[áa]ntas|qu[ée]|qui[ée]n|d[óo]nde|cu[áa]ndo|c[óo]mo|verdadero|veritat|fals|falso|correcte|incorrecte)$/i;
+
+  function extract(txt, opts) {
+    var ms = [];
+    if (!txt) return ms;
+    opts = opts || {};
+    /* articles / lleis */
+    matchAll(/\b(?:art(?:icle|[íi]culo|s)?\.?\s*)\d+(?:\.\d+)*(?:\s?(?:bis|CE|EAC|LO|CP|LECrim))?/gi, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'art', m[0], 5); });
+    matchAll(/\b(?:Llei|Ley|LO|LOFCS|Real Decret(?:[- ]llei)?|Reial Decret(?:[- ]llei)?|Real Decreto(?:-ley)?|Decret(?:[- ]llei)?|Decreto(?:-ley)?)\s*(?:org[àa]nica\s*|org[áa]nica\s*)?\d+\/\d{2,4}/gi, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'law', m[0], 5); });
+    /* dates */
+    matchAll(new RegExp('\\b\\d{1,2}\\s+de\\s+(?:' + MONTHS + ')(?:\\s+de\\s+\\d{3,4})?', 'gi'), txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'date', m[0], 6); });
+    matchAll(/\b(?:segle|s\.|siglo)\s*[IVX]+(?:\s*(?:aC|dC|a\.\s?C\.|d\.\s?C\.))?/g, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'year', m[0], 4); });
+    matchAll(/(?<![\d.,\/])\b(?:1[0-9]{3}|20[0-9]{2}|[1-9][0-9]{2})(?:\s*(?:aC|dC|a\.\s?C\.|d\.\s?C\.))?(?![\d,]|\.\d)/g, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'year', m[0], 6); });
+    /* quantitats amb unitats */
+    matchAll(new RegExp('(?<![\\p{L}\\d])(?:\\d+(?:[.,]\\d+)?|' + NUMW + ')\\s*(?:' + UNITS + ')(?![\\p{L}])', 'giu'), txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'quant', m[0], 5); });
+    matchAll(/\b\d+\/\d+\b|\b\d+\s?%|\b(?:dos terços|tres cinquenes|tres quintos|dos tercios)\b/gi, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'quant', m[0], 5); });
+    matchAll(/(?<![\p{L}\d.,\/])\d+(?:[.,]\d+)*(?![\p{L}\d])/gu, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'num', m[0], 3); });
+    /* termes del domini */
+    ICONS.forEach(function (ic) {
+      var re = new RegExp(ic[0].source, 'gi');
+      matchAll(re, txt, function (m) {
+        var s = m.index, e = s + m[0].length;
+        /* estén a la paraula sencera */
+        while (s > 0 && /[\p{L}]/u.test(txt.charAt(s - 1))) s--;
+        while (e < txt.length && /[\p{L}]/u.test(txt.charAt(e))) e++;
+        var w = txt.slice(s, e);
+        if (w.length < 3) return;
+        pushM(ms, s, e, 'term', w, 2);
+      });
+    });
+    matchAll(/\b(?:seguretat p[úu]blica|seguridad p[úu]blica|compet[èe]ncia exclusiva|competencia exclusiva|majoria (?:absoluta|simple|qualificada)|mayor[íi]a (?:absoluta|simple|cualificada)|llei org[àa]nica|ley org[áa]nica|iniciativa popular|iniciativa legislativa|decret llei|decreto-ley|junta de seguretat|policia judicial|polic[íi]a judicial|polic[íi]a administrativa|policia administrativa|policia local|polic[íi]a local)\b/gi, txt, function (m) { pushM(ms, m.index, m.index + m[0].length, 'term', m[0], 4); });
+    /* noms propis */
+    var tokRe = /[\p{L}\p{N}][\p{L}\p{N}'’·.\-]*/gu, toks = [], t;
+    while ((t = tokRe.exec(txt))) toks.push({ s: t.index, e: t.index + t[0].length, w: t[0] });
+    function isCap(w) { return /^\p{Lu}/u.test(w) && !/^\d/.test(w); }
+    function isStart(i) {
+      if (i === 0) return !opts.allowStart;
+      var before = txt.slice(0, toks[i].s).replace(/\s+$/, '');
+      var last = before.charAt(before.length - 1);
+      return before === '' ? !opts.allowStart : /[.?!:;¿¡«"“]/.test(last) && /[.?!:;¿¡]/.test(last);
+    }
+    for (var i = 0; i < toks.length; i++) {
+      var w = toks[i].w;
+      var base = w.replace(/^[lLdD]['’]/, '');
+      if (!isCap(base) && !isCap(w)) continue;
+      var acr = /^\p{Lu}{2,7}$/u.test(w.replace(/\./g, ''));
+      var j = i, endIdx = i, caps = 1;
+      while (j + 1 < toks.length) {
+        var nx = toks[j + 1].w;
+        var gap = txt.slice(toks[j].e, toks[j + 1].s);
+        if (/[.?!;:]/.test(gap.replace(/\s/g, ''))) break;
+        if (isCap(nx) && !STOPCAP.test(nx)) { j++; endIdx = j; caps++; continue; }
+        if (CONN[nx.toLowerCase()] && j + 2 < toks.length && isCap(toks[j + 2].w)) { j += 2; endIdx = j; caps++; continue; }
+        break;
+      }
+      var start = toks[i].s, end = toks[endIdx].e, text = txt.slice(start, end);
+      if (/^(art|arts|cp|ce)$/i.test(text.replace(/\./g, '')) && !acr) { i = endIdx; continue; }
+      var firstWord = w.toLowerCase();
+      if (STOPCAP.test(firstWord) && caps === 1) { i = endIdx; continue; }
+      if (caps === 1 && !acr && isStart(i)) { i = endIdx; continue; }
+      if (/^[IVXLC]+$/.test(w) && caps === 1) { i = endIdx; continue; }
+      if (text.replace(/[^\p{L}]/gu, '').length < 2) { i = endIdx; continue; }
+      pushM(ms, start, end, 'name', text.replace(/[.,;:]+$/, ''), caps > 1 ? 4 : 3);
+      ms[ms.length - 1].e = start + ms[ms.length - 1].text.length;
+      i = endIdx;
+    }
+    /* matisos (trampes) */
+    matchAll(/(?<![\p{L}])(?:NO|no|mai|cap|només|nom[ée]s|sols|solo|sempre|siempre|tots|totes|todos|todas|excepte|excepto|tret de|salvo|menys|menos|exclusivament|exclusivamente|[úu]nicament|[úu]nicamente|almenys|al menos|m[íi]nim|m[íi]nima|m[àa]xim|m[àa]xima|m[íi]nimo|m[áa]ximo|incorrecta|incorrecte|falsa|fals|falsa|nunca|ning[úu]n|ninguna|ninguno|cap d['’]|tampoc|ni\b)(?![\p{L}])/gu, txt, function (m) {
+      var wd = m[0];
+      if (/^(ni|no)$/.test(wd) && !/^NO$/.test(wd) && txt.length > 400) return;
+      pushM(ms, m.index, m.index + m[0].length, 'warn', m[0], 2);
+    });
+    /* resol solapaments: guanya el de més pes / més llarg */
+    ms.sort(function (a, b) { return a.s - b.s || (b.e - b.s) - (a.e - a.s); });
+    var out = [];
+    ms.forEach(function (m) {
+      var last = out[out.length - 1];
+      if (last && m.s < last.e) {
+        if (m.type === 'warn' || last.type === 'warn') {
+          if (m.type !== 'warn' && last.type === 'warn' && (m.e - m.s) > (last.e - last.s)) out[out.length - 1] = m;
+          return;
+        }
+        if (m.w > last.w || ((m.e - m.s) > (last.e - last.s) && m.w >= last.w)) out[out.length - 1] = m;
+        return;
+      }
+      out.push(m);
+    });
+    return out;
+  }
+
+  /* ---------------- 3. Ressaltat (CSS Custom Highlight API) ---------------- */
+  var HL_OK = typeof CSS !== 'undefined' && CSS.highlights && typeof Highlight !== 'undefined';
+  var kwOn = lsGet('talaia:tlk:kw') === '1';
+  var SCOPE_SEL = '.qtext, .qq, .opt, .op, .explain, .tlk-explain';
+  function hostOf(q) { var p = q.parentElement; return p && p.classList.contains('card') && p.querySelector(':scope > .qtext') ? p : q; }
+  function containerOf(q) { return q.closest('.wrap') || q.closest('.card') || q.parentElement; }
+
+  function scopeNodes(container) {
+    var nodes = [];
+    container.querySelectorAll(SCOPE_SEL).forEach(function (el) {
+      if (el.closest('.tlk')) return;
+      var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n;
+      while ((n = tw.nextNode())) {
+        if (!n.nodeValue || !n.nodeValue.trim()) continue;
+        if (n.parentNode.closest && n.parentNode.closest('.tlk')) continue;
+        nodes.push({ node: n, short: el.matches('.opt, .op') });
+      }
+    });
+    /* Estatut: explicacio dins d'una targeta sense classe propia */
+    container.querySelectorAll('.card > p').forEach(function (p) {
+      if (p.closest('.tlk') || p.classList.contains('nt')) return;
+      var n = p.firstChild; if (n && n.nodeType === 3 && n.nodeValue.trim()) nodes.push({ node: n, short: false });
+    });
+    return nodes;
+  }
+
+  function applyHighlights() {
+    if (!HL_OK) return;
+    var keyH = new Highlight(), warnH = new Highlight(), any = false;
+    if (kwOn) {
+      document.querySelectorAll('.tlk-bar').forEach(function (bar) {
+        var q = bar.__q; if (!q || !q.isConnected) return;
+        scopeNodes(containerOf(q)).forEach(function (o) {
+          var txt = o.node.nodeValue;
+          extract(txt, { allowStart: o.short && txt.split(/\s+/).length <= 9 }).forEach(function (m) {
+            var r = new Range(); try { r.setStart(o.node, m.s); r.setEnd(o.node, m.e); } catch (e) { return; }
+            (m.type === 'warn' ? warnH : keyH).add(r); any = true;
+          });
+        });
+      });
+    }
+    try {
+      if (any) { CSS.highlights.set('tlk-key', keyH); CSS.highlights.set('tlk-warn', warnH); }
+      else { CSS.highlights.delete('tlk-key'); CSS.highlights.delete('tlk-warn'); }
+    } catch (e) {}
+  }
+
+  /* ---------------- 4. Dades de la pregunta actual ---------------- */
+  function qData(q) {
+    var L = lang(), rec = buildRec()[norm(q.textContent).replace(/\.\.\./g, '___')] || null;
+    var cont = containerOf(q);
+    var d = { rec: rec, qtext: q.textContent.trim(), answer: '', expl: '', revealed: false, tf: null };
+    var explEl = cont.querySelector('.explain');
+    var okOpt = cont.querySelector('.opt.correct, .op.good');
+    var chkCard = !explEl && cont.querySelector('.card .lb') && cont.querySelector('.op.good');
+    d.revealed = !!(explEl || okOpt || chkCard);
+    if (rec) {
+      var oo = (L === 'es' && rec.oe) ? rec.oe : rec.o;
+      if (rec.o && rec.c != null) d.answer = oo[rec.c];
+      if (rec.v != null) { d.tf = rec.v; d.answer = rec.v ? TX[L].tru : TX[L].fal; }
+      d.expl = (L === 'es' && rec.ee) ? rec.ee : (rec.e || '');
+    }
+    if (!d.answer && okOpt) d.answer = okOpt.textContent.replace(/^[A-D]\s*/, '').trim();
+    if (!d.expl && explEl) d.expl = explEl.textContent.replace(/^(Correcte|Explicaci[óo]|Correcto)/, '').trim();
+    return d;
+  }
+
+  /* ---------------- 5. Imatge mnemotecnica ---------------- */
+  var PRI = { date: 9, year: 9, art: 8, law: 8, quant: 7, num: 6, name: 5, term: 3, warn: 0 };
+  function iconFor(kw) {
+    for (var i = 0; i < ICONS.length; i++) if (ICONS[i][0].test(kw.text)) return ICONS[i][1];
+    return DEFAULT_ICON[kw.type] || '💡';
+  }
+  function uniq(list) {
+    var seen = {}, out = [];
+    list.forEach(function (k) { var key = norm(k.text); if (!seen[key]) { seen[key] = 1; out.push(k); } });
+    return out;
+  }
+  function wrapLines(s, n, maxLines) {
+    var words = String(s).split(/\s+/), lines = [], cur = '';
+    words.forEach(function (w) { if ((cur + ' ' + w).trim().length > n && cur) { lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim(); });
+    if (cur) lines.push(cur);
+    if (lines.length > maxLines) { lines = lines.slice(0, maxLines); lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S{0,3}$/, '') + '…'; }
+    return lines;
+  }
+  function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+
+  function scene(d, variant) {
+    var L = lang(), T = TX[L];
+    var qk = extract(d.qtext, {}).filter(function (k) { return k.type !== 'warn'; });
+    var ak = d.revealed && d.answer ? extract(d.answer, { allowStart: true }).filter(function (k) { return k.type !== 'warn'; }) : [];
+    var ek = d.revealed && d.expl ? extract(d.expl, {}).filter(function (k) { return k.type !== 'warn'; }) : [];
+    var all = uniq(ak.concat(qk, ek));
+    var facts = all.filter(function (k) { return PRI[k.type] >= 5; }).sort(function (a, b) { return PRI[b.type] - PRI[a.type]; });
+    var anchor = facts[variant % Math.max(1, facts.length)] || all[variant % Math.max(1, all.length)] || null;
+    var anchorText = anchor ? anchor.text : (d.revealed && d.answer ? clip(d.answer, 24) : '?');
+    var rest = all.filter(function (k) { return k !== anchor; });
+    /* tria fins a 3 icones diferents; la variant en roda l'ordre */
+    var seenIcon = {}, picks = [];
+    var order = rest.slice(); for (var r = 0; r < variant; r++) order.push(order.shift());
+    order.forEach(function (k) { var ic = iconFor(k); if (picks.length < 3 && !seenIcon[ic]) { seenIcon[ic] = 1; picks.push({ ic: ic, k: k }); } });
+    if (!picks.length && anchor) picks.push({ ic: iconFor(anchor), k: anchor });
+    var W = 360, H = 300;
+    var fs = anchorText.length <= 6 ? 62 : anchorText.length <= 12 ? 44 : anchorText.length <= 20 ? 32 : 24;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + esc(anchorText) + '" style="width:100%;height:auto;display:block;border-radius:14px">' +
+      '<defs><linearGradient id="tlkg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7edd3"/><stop offset="1" stop-color="#e9d8aa"/></linearGradient></defs>' +
+      '<rect width="' + W + '" height="' + H + '" rx="14" fill="url(#tlkg)"/><rect x="6" y="6" width="' + (W - 12) + '" height="' + (H - 12) + '" rx="10" fill="none" stroke="#7a1f3a" stroke-width="2"/>' +
+      '<rect x="14" y="16" width="' + (W - 28) + '" height="74" rx="10" fill="#5a1428"/>' +
+      '<text x="' + (W / 2) + '" y="' + (16 + 37 + fs * 0.34) + '" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="' + fs + '" fill="#f6d77a">' + esc(anchorText) + '</text>';
+    var n = picks.length || 1, slot = (W - 40) / n;
+    picks.forEach(function (p, i) {
+      var cx = 20 + slot * i + slot / 2;
+      svg += '<circle cx="' + cx + '" cy="150" r="38" fill="#fff8e4" stroke="#c9a23f" stroke-width="3"/>' +
+        '<text x="' + cx + '" y="166" text-anchor="middle" font-size="44">' + p.ic + '</text>' +
+        '<text x="' + cx + '" y="206" text-anchor="middle" font-family="Georgia,serif" font-size="12.5" font-weight="700" fill="#4a1223">' + esc(clip(p.k.text, slot > 150 ? 22 : slot > 100 ? 15 : 11)) + '</text>';
+      if (i < n - 1) svg += '<text x="' + (cx + slot / 2) + '" y="160" text-anchor="middle" font-size="22" fill="#7a1f3a">➜</text>';
+    });
+    svg += '<line x1="30" y1="222" x2="' + (W - 30) + '" y2="222" stroke="#c9a23f" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    if (d.revealed && d.answer) {
+      var lines = wrapLines(d.answer, 38, 2);
+      svg += '<text x="' + (W / 2) + '" y="244" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#7a1f3a" letter-spacing="1.5">' + esc(T.ans.toUpperCase()) + '</text>';
+      lines.forEach(function (ln, i) { svg += '<text x="' + (W / 2) + '" y="' + (265 + i * 19) + '" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="700" fill="#2a0a14">' + esc(ln) + '</text>'; });
+    } else {
+      svg += '<text x="' + (W / 2) + '" y="262" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-style="italic" fill="#7a1f3a">' + esc(clip(T.hint, 52)) + '</text>';
+    }
+    svg += '</svg>';
+    var story = picks.map(function (p) { return p.ic + ' ' + p.k.text; }).join('  ➜  ');
+    var cap = T.say + ': ' + story + (anchor ? ' — ' + T.center + ': «' + anchorText + '».' : '');
+    return { svg: svg, caption: cap, anchor: anchor, all: all };
+  }
+
+  /* fotos reals (Wikipedia) */
+  var WP = {};
+  try { WP = JSON.parse(lsGet('talaia:tlk:wp') || '{}') || {}; } catch (e) { WP = {}; }
+  function saveWP() { try { var ks = Object.keys(WP); if (ks.length > 400) ks.slice(0, 150).forEach(function (k) { delete WP[k]; }); lsSet('talaia:tlk:wp', JSON.stringify(WP)); } catch (e) {} }
+  function wikiThumb(title, L) {
+    var key = L + ':' + title;
+    if (key in WP) return Promise.resolve(WP[key] || null);
+    var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var to = setTimeout(function () { if (ctl) ctl.abort(); }, 7000);
+    return fetch('https://' + (L === 'es' ? 'es' : 'ca') + '.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title.replace(/ /g, '_')) + '?redirect=true', ctl ? { signal: ctl.signal } : {})
+      .then(function (r) { clearTimeout(to); if (!r.ok) throw new Error('http'); return r.json(); })
+      .then(function (j) {
+        var ok = j && j.type === 'standard' && j.thumbnail && j.thumbnail.source;
+        var res = ok ? { src: j.thumbnail.source, title: j.title, url: j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page } : 0;
+        WP[key] = res; saveWP(); return res || null;
+      })
+      .catch(function () { clearTimeout(to); return null; });
+  }
+  function photoCandidates(sc) {
+    return sc.all.filter(function (k) { return (k.type === 'name' || k.type === 'term') && k.text.length > 3 && !/^(art|llei|ley)/i.test(k.text); })
+      .sort(function (a, b) { return (b.type === 'name') - (a.type === 'name') || b.text.length - a.text.length; }).map(function (k) { return k.text; }).slice(0, 5);
+  }
+
+  /* ---------------- 6. Barra i panell ---------------- */
+  var imgKey = null, imgVariant = 0, imgPhotoIdx = 0;
+  function mkBtn(cls, html, fn) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost btn-sm tlk-btn ' + (cls || ''); b.innerHTML = html;
+    b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); fn(b); }); return b;
+  }
+  function labels(bar) {
+    var T = TX[lang()];
+    bar.__b1.innerHTML = '🔑 ' + T.kw; bar.__b2.innerHTML = '🖼️ ' + T.img;
+    bar.__b1.classList.toggle('on', kwOn); bar.__b2.classList.toggle('on', imgKey === bar.__key);
+    bar.__b1.setAttribute('aria-pressed', kwOn ? 'true' : 'false');
+  }
+  function renderChips(bar) {
+    var T = TX[lang()], q = bar.__q;
+    if (!kwOn) { bar.__chips.innerHTML = ''; bar.__chips.style.display = 'none'; return; }
+    var cont = containerOf(q), seen = {}, chips = [];
+    var txts = [q.textContent];
+    cont.querySelectorAll('.opt, .op').forEach(function (o) { txts.push(o.textContent.replace(/^[A-D](?=\S)/, '')); });
+    var d = qData(q); if (d.revealed && d.expl) txts.push(d.expl);
+    txts.forEach(function (t, i) { extract(t, { allowStart: i > 0 && t.split(/\s+/).length <= 9 }).forEach(function (m) { var k = norm(m.text); if (!seen[k]) { seen[k] = 1; chips.push(m); } }); });
+    chips = chips.filter(function (m) { return m.type !== 'warn' || chips.length < 14; }).slice(0, 14);
+    bar.__chips.style.display = '';
+    bar.__chips.innerHTML = chips.length ? chips.map(function (m) { return '<span class="tlk-chip ' + (m.type === 'warn' ? 'warn' : '') + '" title="' + (m.type === 'warn' ? T.warn : T.key) + '">' + esc(m.text) + '</span>'; }).join('') : '<span class="tlk-none">' + T.nokw + '</span>';
+  }
+  function renderPanel(bar) {
+    var T = TX[lang()], panel = bar.__panel, q = bar.__q;
+    if (imgKey !== bar.__key) { panel.innerHTML = ''; panel.style.display = 'none'; return; }
+    var d = qData(q), sc = scene(d, imgVariant);
+    bar.__rev = d.revealed;
+    panel.style.display = '';
+    panel.innerHTML = '<div class="tlk-photo" style="display:none"></div>' + sc.svg +
+      '<div class="tlk-cap"><b>' + T.mem + '.</b> ' + esc(sc.caption) + '</div>' +
+      '<div class="tlk-row"></div>';
+    var row = panel.querySelector('.tlk-row');
+    row.appendChild(mkBtn('', '🔄 ' + T.other, function () {
+      imgVariant++; imgPhotoIdx++; renderPanel(bar);
+    }));
+    row.appendChild(mkBtn('', '✕ ' + T.close, function () { imgKey = null; renderPanel(bar); labels(bar); }));
+    /* foto real */
+    var cands = photoCandidates(sc), L = lang(), photo = panel.querySelector('.tlk-photo');
+    (function tryAt(i, tries) {
+      if (!cands.length || tries >= cands.length) return;
+      var title = cands[(imgPhotoIdx + i) % cands.length];
+      wikiThumb(title, L).then(function (res) {
+        if (!panel.isConnected || imgKey !== bar.__key) return;
+        if (!res) { tryAt(i + 1, tries + 1); return; }
+        photo.style.display = '';
+        photo.innerHTML = '<img alt="' + esc(res.title) + '" referrerpolicy="no-referrer" loading="lazy" src="' + esc(res.src) + '"/>' +
+          '<div class="tlk-credit">' + T.photo + ': ' + (res.url ? '<a href="' + esc(res.url) + '" target="_blank" rel="noopener">' + esc(res.title) + ' · Wikipedia</a>' : esc(res.title) + ' · Wikipedia') + '</div>';
+        var im = photo.querySelector('img'); im.addEventListener('error', function () { photo.style.display = 'none'; photo.innerHTML = ''; });
+      });
+    })(0, 0);
+  }
+  function makeBar(q) {
+    var bar = document.createElement('div'); bar.className = 'tlk tlk-bar'; bar.setAttribute('data-notr', ''); bar.setAttribute('translate', 'no');
+    bar.__q = q; bar.__key = norm(q.textContent);
+    var row = document.createElement('div'); row.className = 'tlk-row';
+    bar.__b1 = mkBtn('', '', function () { kwOn = !kwOn; lsSet('talaia:tlk:kw', kwOn ? '1' : '0'); refreshAll(); });
+    bar.__b2 = mkBtn('', '', function () {
+      imgKey = (imgKey === bar.__key) ? null : bar.__key; imgVariant = 0; imgPhotoIdx = 0; refreshAll();
+    });
+    row.appendChild(bar.__b1); row.appendChild(bar.__b2);
+    bar.__chips = document.createElement('div'); bar.__chips.className = 'tlk-chips'; bar.__chips.style.display = 'none';
+    bar.__panel = document.createElement('div'); bar.__panel.className = 'tlk-panel'; bar.__panel.style.display = 'none';
+    bar.appendChild(row); bar.appendChild(bar.__chips); bar.appendChild(bar.__panel);
+    return bar;
+  }
+  function refreshAll() {
+    document.querySelectorAll('.tlk-bar').forEach(function (bar) { labels(bar); renderChips(bar); renderPanel(bar); });
+    applyHighlights();
+  }
+
+  var raf = 0;
+  function scan() {
+    raf = 0;
+    /* neteja barres òrfenes (React ha tret la pregunta) */
+    document.querySelectorAll('.tlk-bar').forEach(function (bar) {
+      var prev = bar.previousElementSibling;
+      var ok = prev && (prev.matches('.qtext, .qq') || prev.querySelector(':scope > .qtext'));
+      if (!ok) bar.remove();
+    });
+    var changed = false;
+    document.querySelectorAll('.qtext, .qq').forEach(function (q) {
+      if (q.closest('.tlk')) return;
+      /* ignora textos de pregunta d'una revisió final sense opcions? (sí que en tenen) */
+      var host = hostOf(q), bar = host.nextElementSibling;
+      if (!bar || !bar.classList || !bar.classList.contains('tlk-bar')) { bar = makeBar(q); host.insertAdjacentElement('afterend', bar); changed = true; }
+      var key = norm(q.textContent);
+      bar.__q = q;
+      if (bar.__key !== key) { bar.__key = key; bar.__rev = null; if (imgKey && imgKey !== key && bar.__panel.style.display !== 'none') { /* pregunta nova: tanca el panell */ } changed = true; }
+      var d = (imgKey === key) ? qData(q) : null;
+      if (d && bar.__rev !== d.revealed) changed = true;
+      if (bar.__lang !== lang()) { bar.__lang = lang(); changed = true; }
+      if (bar.__panel.style.display === 'none' && imgKey === key) changed = true;
+    });
+    /* si la pregunta oberta ja no existeix, oblida-la */
+    if (imgKey && !Array.prototype.some.call(document.querySelectorAll('.tlk-bar'), function (b) { return b.__key === imgKey; })) imgKey = null;
+    if (changed) refreshAll(); else if (kwOn) applyHighlights();
+  }
+  function schedule() { if (!raf) raf = requestAnimationFrame(scan); }
+
+  /* ---------------- 7. Estils ---------------- */
+  var css = document.createElement('style');
+  css.textContent =
+    '.tlk-bar{margin:10px 0 4px;display:block}.tlk-row{display:flex;flex-wrap:wrap;gap:8px}' +
+    '.tlk-btn{font-size:13px!important;padding:8px 12px!important;line-height:1.1;min-height:36px}' +
+    '.tlk-btn.on{background:#c9a23f!important;color:#2a0a14!important;border-color:#c9a23f!important}' +
+    '.tlk-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}' +
+    '.tlk-chip{background:rgba(224,170,30,.28);border:1px solid rgba(201,162,63,.8);border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600}' +
+    '.tlk-chip.warn{background:rgba(200,40,60,.18);border-color:rgba(200,40,60,.6)}' +
+    '.tlk-none{font-size:12.5px;opacity:.7}' +
+    '.tlk-panel{margin-top:10px;padding:10px;border-radius:16px;background:rgba(0,0,0,.14);border:1px solid rgba(201,162,63,.5)}' +
+    '.tlk-photo{margin-bottom:10px}.tlk-photo img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block}' +
+    '.tlk-credit{font-size:11px;opacity:.75;margin-top:4px}.tlk-credit a{color:inherit}' +
+    '.tlk-cap{font-size:13.5px;line-height:1.45;margin:10px 2px}.tlk-panel .tlk-row{margin-top:6px}' +
+    '::highlight(tlk-key){background-color:rgba(255,196,40,.6)}' +
+    '::highlight(tlk-warn){background-color:rgba(214,48,70,.38)}';
+  document.head.appendChild(css);
+
+  /* ---------------- 8. Arrencada ---------------- */
+  function boot() {
+    var app = document.getElementById('root') || document.body;
+    new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var t = muts[i].target;
+        var el = t.nodeType === 1 ? t : t.parentElement;
+        if (el && el.closest && el.closest('.tlk')) continue;
+        schedule(); return;
+      }
+    }).observe(document.body, { subtree: true, childList: true, characterData: true });
+    new MutationObserver(schedule).observe(root, { attributes: true, attributeFilter: ['lang'] });
+    schedule();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  window.__TLK = { extract: extract, scene: scene };
+})();
+
+</script>
 </body>
 </html>
