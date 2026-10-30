@@ -6,7 +6,8 @@
  *   node tools/talaia-bank.js stats
  *   node tools/talaia-bank.js temes
  *   node tools/talaia-bank.js check  noves.json [informe.md]
- *   node tools/talaia-bank.js add    noves.json [--tots] [--sense-rotar]
+ *   node tools/talaia-bank.js add    noves.json [--tots] [--sense-rotar] [--accepta=9,10]
+ *   node tools/talaia-bank.js patch  correccions.json   (camps nous per id; null esborra el camp)
  *   node tools/talaia-bank.js remove id1,id2,...
  *
  * Format de noves.json: una llista de preguntes
@@ -159,7 +160,9 @@ if (cmd === 'stats') {
   console.log(by); console.log('Informe: ' + outF);
 } else if (cmd === 'add') {
   const inc = parseIncoming(a1), res = classify(D, inc);
-  const ok = res.filter(r => !r.twin && (r.verdict === 'NOVA' || (flags.has('--tots') && r.verdict === 'SEMBLANT')));
+  /* --accepta=9,10: números del lot revisats a mà (conflictes falsos, p. ex. enunciats semblants sobre fets diferents) */
+  const acc = new Set(((process.argv.find(s => s.startsWith('--accepta=')) || '').split('=')[1] || '').split(',').filter(Boolean).map(Number));
+  const ok = res.filter(r => acc.has(r.x._i) || (!r.twin && (r.verdict === 'NOVA' || (flags.has('--tots') && r.verdict === 'SEMBLANT'))));
   const used = new Set([...D.Tc.map(q => q.id), ...D.Fc.map(f => f.id)]);
   const nextId = (p, card) => { const pre = (p.match(/^[a-d]\d/) ? p.slice(0, 2) : p.slice(0, 3)) + (card ? 'f' : 'q'); let n = 1; while (used.has(pre + String(n).padStart(2, '0'))) n++; const id = pre + String(n).padStart(2, '0'); used.add(id); return id; };
   let nq = 0, nf = 0;
@@ -181,6 +184,23 @@ if (cmd === 'stats') {
   save(D);
   const skipped = res.length - ok.length;
   console.log('Afegides: ' + nq + ' preguntes i ' + nf + ' targetes · descartades/pendents: ' + skipped + ' (mira l\'informe amb `check`)');
+} else if (cmd === 'patch') {
+  /* corregeix preguntes o targetes existents: [{ "id": "q190", "q": "...", "o": ["A", "*Correcta", ...], "e": "..." }, ...] */
+  const by = new Map([...D.Tc, ...D.Fc].map(x => [x.id, x]));
+  let n = 0;
+  for (const x of JSON.parse(fs.readFileSync(a1, 'utf8'))) {
+    const t = by.get(x.id); if (!t) { console.log('  no existeix: ' + x.id); continue; }
+    const y = Object.assign({}, x); delete y.id;
+    if (y.o) {
+      const st = y.o.map((o, k) => String(o)[0] === '*' ? k : -1).filter(k => k >= 0);
+      if (st.length === 1) { y.o = y.o.map(o => String(o)[0] === '*' ? String(o).slice(1).trim() : o); y.c = st[0]; }
+      if (y.o.length !== 4 || typeof (y.c ?? t.c) !== 'number') { console.log('  opcions no vàlides: ' + x.id); continue; }
+      if (t.oe && !y.oe) delete t.oe;
+    }
+    for (const k of Object.keys(y)) { if (y[k] === null) delete t[k]; else t[k] = y[k]; }
+    n++;
+  }
+  save(D); console.log('Corregides: ' + n);
 } else if (cmd === 'remove') {
   const ids = new Set(String(a1 || '').split(',').filter(Boolean));
   const b = D.Tc.length + D.Fc.length;

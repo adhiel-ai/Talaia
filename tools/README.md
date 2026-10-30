@@ -56,3 +56,13 @@ git add index.html && git commit -m "Banc: N preguntes noves de ..." && git push
 - Verificar contra fonts oficials (BOE, DOGC, CE, Estatut). Si no es pot confirmar, seguir el material de Flou i marcar-ho
 - La resposta correcta no ha de ser la més llarga ni la més detallada
 - Explicació curta amb l'article i, si escau, la prova oficial on ha sortit
+
+## Corregir preguntes existents
+
+```
+node tools/talaia-bank.js patch correccions.json
+```
+
+`correccions.json` és una llista `[{ "id": "q190", "q": "...", "o": ["A", "*Correcta", "C", "D"], "e": "..." }]`: només canvia els camps que hi posis (`null` esborra un camp, p. ex. `"ee": null` quan l'explicació castellana queda antiga). Si canvies les opcions, la traducció `oe` s'esborra sola.
+
+Si `check` marca com a CONFLICTE una pregunta que en realitat tracta un altre fet (passa amb enunciats curts semblants), revisa-la i afegeix-la igualment amb `add lot.json --accepta=9,10` (números del lot).
