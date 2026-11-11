@@ -1186,13 +1186,19 @@ function TlRepas(props) {
 var TL_DAY = 864e5;
 function TlDaysTo(iso) { if (!iso) return null; var d = new Date(iso + "T00:00:00"); if (isNaN(d)) return null; var t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((d - t) / TL_DAY); }
 /* tema que toca avui: el menys treballat i, a igualtat, el de pitjor encert (de qualsevol àmbit) */
+/* ordre d'àmbits del pla: B → C → A → D */
+var TlAmbRank = { B: 0, C: 1, A: 2, D: 3 };
 function TlPlanTema(e) {
   var by = (e.quiz && e.quiz.byPeriod) || {}, agg = {};
   Tc.forEach(function (q) { var t = TlTemaOf(q); if (!Temes[t]) return; var a = agg[t] || (agg[t] = { t: t, amb: TlAmbOf(q), n: 0, ok: 0, tot: 0, ps: {} }); a.tot++; a.ps[q.p] = 1; });
   Object.keys(by).forEach(function (p) { var t = PeriodTema[p] || p, a = agg[t]; if (!a) return; a.n += by[p].answered || 0; a.ok += by[p].correct || 0; });
   var L = Object.keys(agg).map(function (k) { var a = agg[k]; a.cov = a.n / a.tot; a.r = a.n ? a.ok / a.n : 0; return a; })
     .filter(function (a) { return a.tot >= 8; })
-    .sort(function (x, y) { return (x.cov < 1) !== (y.cov < 1) ? (x.cov < 1 ? -1 : 1) : x.cov < 1 ? x.cov - y.cov : x.r - y.r; });
+    .sort(function (x, y) {
+      if ((x.cov < 1) !== (y.cov < 1)) return x.cov < 1 ? -1 : 1;
+      if (x.cov < 1) { var rx = TlAmbRank[x.amb] != null ? TlAmbRank[x.amb] : 9, ry = TlAmbRank[y.amb] != null ? TlAmbRank[y.amb] : 9; return rx - ry || x.cov - y.cov; }
+      return x.r - y.r;
+    });
   return L[0] || null;
 }
 function TlToday(props) {
